@@ -2,17 +2,25 @@
 
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
 import { Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// load the uploader only when someone clicks “Upload”
+// Load the uploader lazily
 const ImageUploader = dynamic(() => import('@/components/ImageUploader'), {
   ssr: false,
   loading: () => <Button disabled>Upload</Button>,
 });
 
 export default function Navbar() {
+  const router = useRouter();
+
+  // Redirect to the detail page once Cloudinary returns a publicId
+  const handleUploadSuccess = (publicId: string) => {
+    router.push(`/image/${encodeURIComponent(publicId)}`);
+  };
+
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
@@ -38,7 +46,8 @@ export default function Navbar() {
             About
           </Link>
 
-          <ImageUploader />
+          {/* Same behaviour as ControlsBar uploader */}
+          <ImageUploader onUploadSuccess={handleUploadSuccess} />
 
           <Button
             asChild
