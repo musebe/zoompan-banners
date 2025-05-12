@@ -1,4 +1,3 @@
-// src/components/UploadGallery.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -12,7 +11,7 @@ import {
   createGenerativeFillURL,
 } from '@/lib/cloudinary-client-utils';
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 3;
 
 type Props = {
   zoompan: boolean;
@@ -31,7 +30,10 @@ export default function UploadGallery({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /** pull a page from the Redis list */
+  /* ----------------------------------------------------------- */
+  /*  Fetch helpers                                              */
+  /* ----------------------------------------------------------- */
+
   const loadPage = async (nextOffset: number) => {
     setLoading(true);
     setError(null);
@@ -44,9 +46,16 @@ export default function UploadGallery({
 
       const { uploads: items } = (await res.json()) as { uploads: string[] };
 
-      /* 🔑  de-duplicate on merge */
-      setUploads((prev) => Array.from(new Set([...prev, ...items])));
-      setOffset(nextOffset + items.length);
+      /* 🆕 keep only records not yet shown */
+      setUploads((prev) => [
+        ...prev,
+        ...items.filter((id) => !prev.includes(id)),
+      ]);
+
+      /* bump offset by PAGE_SIZE so each request is a clean slice */
+      setOffset(nextOffset + PAGE_SIZE);
+
+      /* stop if server returned < PAGE_SIZE */
       if (items.length < PAGE_SIZE) setHasMore(false);
     } catch (err) {
       console.error('[UploadGallery] fetch failed:', err);
@@ -61,14 +70,14 @@ export default function UploadGallery({
     loadPage(0);
   }, []);
 
-  /* ------------------------------------------------------------- */
-  /* UI                                                            */
-  /* ------------------------------------------------------------- */
+  /* ----------------------------------------------------------- */
+  /*  UI                                                         */
+  /* ----------------------------------------------------------- */
+
   return (
     <section className='container mx-auto mt-12 px-4 sm:px-6 lg:px-8'>
       <h2 className='mb-4 text-2xl font-bold'>Recent Uploads</h2>
 
-      {/* empty-state message */}
       {!loading && uploads.length === 0 && (
         <p className='text-muted-foreground'>
           No uploads yet – be the first! 📷
@@ -88,7 +97,7 @@ export default function UploadGallery({
 
             return (
               <motion.div
-                key={`${pid}-${idx}`} /* ✅ unique key */
+                key={`${pid}-${idx}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
