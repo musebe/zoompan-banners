@@ -8,15 +8,18 @@ import {
   createGenerativeFillURL,
 } from '@/lib/cloudinary-client-utils';
 
-export const revalidate = 60; // ISR – re-generate every 1 min
+export const revalidate = 60; // 1 min ISR
+
+type DynamicParams = { publicId: string };
 
 export default async function ImageDetail({
   params,
 }: {
-  params: { publicId: string };
+  // 👇 can be the object *or* a Promise of it
+  params: DynamicParams | Promise<DynamicParams>;
 }) {
-  // 🔑 Await once to satisfy Next’s sync-dynamic-API check
-  const { publicId } = await Promise.resolve(params);
+  // always await once to satisfy “sync-dynamic-API” rule
+  const { publicId } = await params;
 
   const pid = decodeURIComponent(publicId);
   if (!pid) notFound();
@@ -27,10 +30,10 @@ export default async function ImageDetail({
 
   return (
     <main className='container mx-auto max-w-5xl px-4 py-12 space-y-8'>
-      <h1 className='text-3xl font-bold'>Transformed Banner</h1>
+      <h1 className='text-3xl font-bold'>Transformed banner</h1>
 
       <div className='grid gap-8 sm:grid-cols-2'>
-        {/* Original */}
+        {/* original */}
         <figure className='space-y-3'>
           <Image
             src={original}
@@ -50,7 +53,7 @@ export default async function ImageDetail({
           </a>
         </figure>
 
-        {/* Transformed */}
+        {/* transformed */}
         <figure className='space-y-3'>
           <Image
             src={transformed}
@@ -75,7 +78,7 @@ export default async function ImageDetail({
         href='/'
         className='text-primary underline-offset-2 hover:underline'
       >
-        ← Back&nbsp;to&nbsp;gallery
+        ← Back to gallery
       </Link>
     </main>
   );
