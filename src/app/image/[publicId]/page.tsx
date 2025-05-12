@@ -8,28 +8,29 @@ import {
   createGenerativeFillURL,
 } from '@/lib/cloudinary-client-utils';
 
-export const revalidate = 60; // ISR – refresh after 1 min
+export const revalidate = 60; // ISR – re-generate every 1 min
 
-type Props = { params: { publicId: string } };
-
-export default async function ImageDetail({ params }: Props) {
-  /** 👉  Await the params object once (required by App Router) */
+export default async function ImageDetail({
+  params,
+}: {
+  params: { publicId: string };
+}) {
+  // 🔑 Await once to satisfy Next’s sync-dynamic-API check
   const { publicId } = await Promise.resolve(params);
 
-  const pid = decodeURIComponent(publicId ?? '');
+  const pid = decodeURIComponent(publicId);
   if (!pid) notFound();
 
   const original = createOptimisedURL(pid);
   const transformed =
-    createZoompanGifURL(pid) ?? // zoompan first
-    createGenerativeFillURL(pid, 1600, 900);
+    createZoompanGifURL(pid) ?? createGenerativeFillURL(pid, 1600, 900);
 
   return (
     <main className='container mx-auto max-w-5xl px-4 py-12 space-y-8'>
       <h1 className='text-3xl font-bold'>Transformed Banner</h1>
 
       <div className='grid gap-8 sm:grid-cols-2'>
-        {/* ─── Original ───────────────────────────────────────────── */}
+        {/* Original */}
         <figure className='space-y-3'>
           <Image
             src={original}
@@ -49,7 +50,7 @@ export default async function ImageDetail({ params }: Props) {
           </a>
         </figure>
 
-        {/* ─── Transformed ────────────────────────────────────────── */}
+        {/* Transformed */}
         <figure className='space-y-3'>
           <Image
             src={transformed}
@@ -74,7 +75,7 @@ export default async function ImageDetail({ params }: Props) {
         href='/'
         className='text-primary underline-offset-2 hover:underline'
       >
-        ← Back to gallery
+        ← Back&nbsp;to&nbsp;gallery
       </Link>
     </main>
   );
