@@ -1,3 +1,4 @@
+// src/app/image/[publicId]/page.tsx
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -8,33 +9,27 @@ import {
   createGenerativeFillURL,
 } from '@/lib/cloudinary-client-utils';
 
-export const revalidate = 60; // ISR – 1 minute
+export const revalidate = 60; //  ⬅︎ still fine
+// export const dynamic = 'force-static'; //  ⬅︎ optional, see below
 
 type Params = { publicId: string };
 
-/* -------------------------------------------------------- */
-/*  Page component                                          */
-/* -------------------------------------------------------- */
 export default async function ImageDetail({
   params,
 }: {
-  /** `params` can be an object **or** a Promise – always await once */
-  params: Params | Promise<Params>;
+  params: Promise<Params>; // ✅ Promise only
 }) {
-  /* ✅ satisfy “sync-dynamic-API” rule */
-  const { publicId } = await params;
+  const { publicId } = await params; // ✅ must await
 
   const pid = decodeURIComponent(publicId);
   if (!pid) notFound();
 
-  /* prettier title — just the file-name without folder / extension */
   const displayName = pid
-    .split('/') // remove folder
-    .pop()!
-    .replace(/\.[^.]+$/, '') // strip .ext
-    .replace(/[-_]+/g, ' '); // nicer spacing
+    .split('/')
+    .pop()! // remove folder
+    .replace(/\.[^.]+$/, '') // strip extension
+    .replace(/[-_]+/g, ' '); // nice spacing
 
-  /* URLs */
   const original = createOptimisedURL(pid);
   const transformed =
     createZoompanGifURL(pid) || createGenerativeFillURL(pid, 1600, 900);
@@ -44,7 +39,7 @@ export default async function ImageDetail({
       <h1 className='text-3xl font-bold break-words'>{displayName}</h1>
 
       <div className='grid gap-8 sm:grid-cols-2'>
-        {/* ───── original ───── */}
+        {/* original */}
         <figure className='space-y-3'>
           <Image
             src={original}
@@ -64,7 +59,7 @@ export default async function ImageDetail({
           </a>
         </figure>
 
-        {/* ───── transformed ───── */}
+        {/* transformed */}
         <figure className='space-y-3'>
           <Image
             src={transformed}
