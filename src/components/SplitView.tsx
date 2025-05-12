@@ -1,3 +1,4 @@
+// src/components/SplitView.tsx
 import { useState, useRef } from 'react';
 import { motion } from 'motion/react';
 import Banner from '@/components/Banner';
@@ -19,24 +20,10 @@ export default function SplitView({
   const [split, setSplit] = useState(0.5);
   const [dragging, setDragging] = useState(false);
 
-  const updateSplit = (clientX: number) => {
+  const updateSplit = (x: number) => {
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
-    const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    setSplit(pct);
-  };
-
-  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    setDragging(true);
-    updateSplit(e.clientX);
-  };
-
-  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (dragging) updateSplit(e.clientX);
-  };
-
-  const onPointerUp = () => {
-    setDragging(false);
+    setSplit(Math.max(0, Math.min(1, (x - rect.left) / rect.width)));
   };
 
   return (
@@ -44,10 +31,9 @@ export default function SplitView({
       ref={containerRef}
       className='mx-auto my-12 max-w-3xl relative'
       style={{ aspectRatio: aspect }}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
+      onPointerMove={(e) => dragging && updateSplit(e.clientX)}
+      onPointerUp={() => setDragging(false)}
     >
-      {/* Static banner underneath */}
       <Banner
         id={publicId}
         zoompan={false}
@@ -55,7 +41,6 @@ export default function SplitView({
         aspect={aspect}
       />
 
-      {/* Clipped dynamic banner */}
       <div
         className='absolute inset-0 overflow-hidden'
         style={{ width: `${split * 100}%` }}
@@ -68,7 +53,6 @@ export default function SplitView({
         />
       </div>
 
-      {/* Drag handle */}
       <motion.div
         className='absolute top-0 h-full flex items-center justify-center'
         style={{
@@ -78,7 +62,10 @@ export default function SplitView({
         }}
         whileHover={{ scale: 1.2 }}
         whileTap={{ scale: 0.9 }}
-        onPointerDown={onPointerDown}
+        onPointerDown={(e) => {
+          setDragging(true);
+          updateSplit(e.clientX);
+        }}
       >
         <div className='h-full w-px bg-border' />
         <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>

@@ -1,3 +1,4 @@
+// src/components/ControlsBar.tsx
 'use client';
 
 import { useState, useCallback } from 'react';
@@ -7,13 +8,15 @@ import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 
-export type ControlsBarProps = {
-  onGenerate: (opts: {
-    publicId: string;
-    zoompan: boolean;
-    generativeFill: boolean;
-  }) => Promise<void> | void;
+export type GenerateConfig = {
+  publicId: string;
+  zoompan: boolean;
+  generativeFill: boolean;
 };
+
+export interface ControlsBarProps {
+  onGenerate: (cfg: GenerateConfig) => void;
+}
 
 export default function ControlsBar({ onGenerate }: ControlsBarProps) {
   const [publicId, setPublicId] = useState<string | null>(null);
@@ -23,14 +26,11 @@ export default function ControlsBar({ onGenerate }: ControlsBarProps) {
 
   const canGenerate = Boolean(publicId) && !loading;
 
-  const handleGenerate = useCallback(async () => {
+  const handleGenerate = useCallback(() => {
     if (!publicId) return;
     setLoading(true);
-    try {
-      await onGenerate({ publicId, zoompan, generativeFill: genFill });
-    } finally {
-      setLoading(false);
-    }
+    onGenerate({ publicId, zoompan, generativeFill: genFill });
+    setLoading(false);
   }, [publicId, zoompan, genFill, onGenerate]);
 
   return (
@@ -41,30 +41,27 @@ export default function ControlsBar({ onGenerate }: ControlsBarProps) {
         transition={{ delay: 0.3 }}
         className='flex flex-col sm:flex-row items-center justify-between gap-4 bg-card p-4 rounded-lg shadow'
       >
-        {/* Upload */}
         <ImageUploader onUploadSuccess={setPublicId} />
 
-        {/* Toggles */}
         <div className='flex items-center gap-6'>
           <label className='flex items-center space-x-2'>
             <Switch
-              id='zoompan-toggle'
               checked={zoompan}
               onCheckedChange={setZoompan}
+              id='zoompan'
             />
-            <Label htmlFor='zoompan-toggle'>Zoompan</Label>
+            <Label htmlFor='zoompan'>Zoompan</Label>
           </label>
           <label className='flex items-center space-x-2'>
             <Switch
-              id='genfill-toggle'
               checked={genFill}
               onCheckedChange={setGenFill}
+              id='genfill'
             />
-            <Label htmlFor='genfill-toggle'>Generative Fill</Label>
+            <Label htmlFor='genfill'>Generative Fill</Label>
           </label>
         </div>
 
-        {/* Generate button */}
         <Button
           size='lg'
           className='whitespace-nowrap'

@@ -1,3 +1,4 @@
+// src/components/Banner.tsx
 'use client';
 
 import { useMemo } from 'react';
@@ -12,7 +13,6 @@ import {
 
 import { zoomInOut } from '@/lib/motionPresets';
 
-/** Simple skeleton placeholder */
 function BannerSkeleton({ aspect }: { aspect: string }) {
   return (
     <div
@@ -40,15 +40,14 @@ export default function Banner({
   alt = 'Banner image',
 }: BannerProps) {
   const { staticUrl, gifUrl } = useMemo(() => {
-    const pid = id;
-    const sUrl = generativeFill
-      ? createGenerativeFillURL(pid, size.w, size.h)
-      : createOptimisedURL(pid);
-    const gUrl = zoompan ? createZoompanGifURL(pid) : undefined;
-    return { staticUrl: sUrl, gifUrl: gUrl };
+    const s = generativeFill
+      ? createGenerativeFillURL(id, size.w, size.h)
+      : createOptimisedURL(id);
+    const g = zoompan ? createZoompanGifURL(id) : undefined;
+    console.debug('[Banner] id=', id, { staticUrl: s, zoompan, gifUrl: g });
+    return { staticUrl: s, gifUrl: g };
   }, [id, generativeFill, zoompan, size]);
 
-  // Show skeleton only if something went wrong (rare since sync)
   if (!staticUrl || (zoompan && !gifUrl)) {
     return <BannerSkeleton aspect={aspect} />;
   }
