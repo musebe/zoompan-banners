@@ -57,7 +57,7 @@ export default function Navbar() {
             aria-label='GitHub repo'
           >
             <a
-              href='https://github.com/your/repo'
+              href='https://github.com/musebe/zoompan-banners'
               target='_blank'
               rel='noopener noreferrer'
             >
