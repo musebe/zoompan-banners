@@ -1,36 +1,118 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌀 Zoompan Banners
 
-## Getting Started
+> Transform and animate banners using AI generative fill and Ken Burns–style zoom effects.
 
-First, run the development server:
+![Zoompan Demo Preview](preview.png)
+
+---
+
+## ✨ Features
+
+- Upload banners directly to **Cloudinary**
+- Generate smooth **Ken Burns zoompan animations**
+- Use **AI-powered generative fill** for banner resizing
+- Compare before/after with **interactive sliders**
+- View recent uploads, side-by-side comparisons & download transformed images
+- Backed by **Redis** for real-time uploads list
+- Built with **Next.js 15**, **Tailwind CSS 4**, **shadcn/ui**, and **Motion.dev**
+
+---
+
+## 🛠 Built With
+
+[![Next.js](https://img.shields.io/badge/Next.js-15-blue?logo=next.js)](https://nextjs.org/)
+[![Cloudinary](https://img.shields.io/badge/Cloudinary-Media-optimization-blue?logo=cloudinary)](https://cloudinary.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-38BDF8?logo=tailwindcss)](https://tailwindcss.com/)
+[![Redis](https://img.shields.io/badge/Redis-Cloud-orange?logo=redis)](https://redis.io/)
+[![License](https://img.shields.io/github/license/yourname/zoompan-banners)](./LICENSE)
+
+---
+
+## 📚 Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Local Setup](#local-setup)
+- [.env Configuration](#env-configuration)
+- [Available Scripts](#available-scripts)
+- [Deployment](#deployment)
+- [Useful Links](#useful-links)
+
+---
+
+## ✅ Prerequisites
+
+- **Node.js 18+**
 
 ```bash
+nvm install 20
+nvm use 20
+````
+
+* A free [Cloudinary account](https://cloudinary.com/)
+* A free [Redis Cloud](https://redis.com/redis-enterprise-cloud/overview/) instance
+
+---
+
+## 🚀 Local Setup
+
+```bash
+git clone https://github.com/yourname/zoompan-banners.git
+cd zoompan-banners
+
+npm install
+
+cp .env.example .env.local
+# → Fill in your Cloudinary & Redis credentials
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# → Visit http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ⚙️ .env Configuration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create a `.env.local` file with:
 
-## Learn More
+| Key                                 | Description                      |
+| ----------------------------------- | -------------------------------- |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name       |
+| `NEXT_PUBLIC_CLOUDINARY_FOLDER`     | Folder to store all uploads      |
+| `CLOUDINARY_API_KEY`                | Cloudinary API Key (server-only) |
+| `CLOUDINARY_API_SECRET`             | Cloudinary Secret (server-only)  |
+| `REDIS_URL`                         | Redis connection string          |
 
-To learn more about Next.js, take a look at the following resources:
+> ✅ `NEXT_PUBLIC_` values are safe for the browser — others are backend-only.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📜 Available Scripts
 
-## Deploy on Vercel
+| Script          | Description                  |
+| --------------- | ---------------------------- |
+| `npm run dev`   | Start the dev server         |
+| `npm run build` | Build for production         |
+| `npm run lint`  | TypeScript and ESLint checks |
+| `npm run start` | Start in production mode     |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🌍 Deployment
+
+1. Push to GitHub
+2. Import to [Vercel](https://vercel.com/)
+3. Add the environment variables
+4. Click **Deploy**
+
+---
+
+## 🔗 Useful Links
+
+* 📸 [Cloudinary Zoompan](https://cloudinary.com/documentation/transformation_reference#e_zoompan)
+* 🧠 [Generative Fill](https://cloudinary.com/documentation/generative_ai_transformations#generative_fill)
+* 🎬 [Motion.dev](https://motion.dev)
+* 🧰 [shadcn/ui](https://ui.shadcn.com)
+
+---
+
+**Make banners shine with motion and AI. ✨**
