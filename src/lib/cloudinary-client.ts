@@ -1,3 +1,5 @@
+//cloudinary-client.ts
+
 /**
  * Browser-safe Cloudinary instance
  * ─────────────────────────────────

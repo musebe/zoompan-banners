@@ -1,3 +1,5 @@
+//session.ts
+
 import redis from "@/lib/redis";
 
 const SESSION_TTL = 60 * 60 * 24 * 7; // 1 week

@@ -1,3 +1,5 @@
+//cloudinary-server.ts
+
 /**
  * Server-side Cloudinary instance
  * ───────────────────────────────
