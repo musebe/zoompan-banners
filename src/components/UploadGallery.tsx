@@ -1,9 +1,11 @@
+// src/components/UploadGallery.tsx
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+
 import {
   createOptimisedURL,
   createZoompanGifURL,
@@ -12,7 +14,7 @@ import {
 
 const PAGE_SIZE = 6;
 
-type UploadGalleryProps = {
+type Props = {
   zoompan: boolean;
   generativeFill: boolean;
   aspect?: string;
@@ -22,39 +24,62 @@ export default function UploadGallery({
   zoompan,
   generativeFill,
   aspect = '16/9',
-}: UploadGalleryProps) {
+}: Props) {
   const [uploads, setUploads] = useState<string[]>([]);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  /* ––––– Fetch helpers ––––– */
+  /** pull a page from the Redis list */
   const loadPage = async (nextOffset: number) => {
     setLoading(true);
-    const res = await fetch(
-      `/api/uploads?limit=${PAGE_SIZE}&offset=${nextOffset}`
-    );
-    const { uploads: items } = (await res.json()) as { uploads: string[] };
-    setUploads((prev) => [...prev, ...items]);
-    setOffset(nextOffset + items.length);
-    if (items.length < PAGE_SIZE) setHasMore(false);
-    setLoading(false);
+    setError(null);
+
+    try {
+      const res = await fetch(
+        `/api/uploads?limit=${PAGE_SIZE}&offset=${nextOffset}`
+      );
+      if (!res.ok) throw new Error(await res.text());
+
+      const { uploads: items } = (await res.json()) as { uploads: string[] };
+
+      /* 🔑  de-duplicate on merge */
+      setUploads((prev) => Array.from(new Set([...prev, ...items])));
+      setOffset(nextOffset + items.length);
+      if (items.length < PAGE_SIZE) setHasMore(false);
+    } catch (err) {
+      console.error('[UploadGallery] fetch failed:', err);
+      setError('Could not load uploads – please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  /* initial */
+  /* first load */
   useEffect(() => {
     loadPage(0);
   }, []);
 
-  /* ––––– Render ––––– */
+  /* ------------------------------------------------------------- */
+  /* UI                                                            */
+  /* ------------------------------------------------------------- */
   return (
     <section className='container mx-auto mt-12 px-4 sm:px-6 lg:px-8'>
       <h2 className='mb-4 text-2xl font-bold'>Recent Uploads</h2>
 
+      {/* empty-state message */}
+      {!loading && uploads.length === 0 && (
+        <p className='text-muted-foreground'>
+          No uploads yet – be the first! 📷
+        </p>
+      )}
+
+      {error && <p className='mb-4 text-sm text-destructive'>{error}</p>}
+
       <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
         <AnimatePresence initial={false}>
-          {uploads.map((pid) => {
-            /* choose right-hand (animated or gen-fill) as thumbnail */
+          {uploads.map((pid, idx) => {
             const thumbUrl = zoompan
               ? createZoompanGifURL(pid)
               : generativeFill
@@ -63,7 +88,7 @@ export default function UploadGallery({
 
             return (
               <motion.div
-                key={pid}
+                key={`${pid}-${idx}`} /* ✅ unique key */
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
@@ -71,7 +96,6 @@ export default function UploadGallery({
                 className='relative overflow-hidden rounded-lg bg-card shadow'
                 style={{ aspectRatio: aspect }}
               >
-                {/* card links to the detail page */}
                 <Link
                   href={`/image/${encodeURIComponent(pid)}`}
                   className='absolute inset-0'
@@ -80,10 +104,9 @@ export default function UploadGallery({
                     src={thumbUrl}
                     alt='Transformed thumbnail'
                     fill
-                    unoptimized /* Cloudinary already optimises */
-                    className='object-cover'
+                    unoptimized
                     sizes='(max-width:768px) 100vw, 33vw'
-                    priority={false}
+                    className='object-cover'
                   />
                 </Link>
               </motion.div>
