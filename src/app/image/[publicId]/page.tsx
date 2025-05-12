@@ -8,24 +8,28 @@ import {
   createGenerativeFillURL,
 } from '@/lib/cloudinary-client-utils';
 
-type PageProps = { params: { publicId: string } };
+export const revalidate = 60; // ISR – refresh after 1 min
 
-export const revalidate = 60; // cache static URL for 1 min
+type Props = { params: { publicId: string } };
 
-export default function ImageDetail({ params }: PageProps) {
-  const pid = decodeURIComponent(params.publicId || '');
+export default async function ImageDetail({ params }: Props) {
+  /** 👉  Await the params object once (required by App Router) */
+  const { publicId } = await Promise.resolve(params);
+
+  const pid = decodeURIComponent(publicId ?? '');
   if (!pid) notFound();
 
   const original = createOptimisedURL(pid);
   const transformed =
-    createZoompanGifURL(pid) || createGenerativeFillURL(pid, 1600, 900);
+    createZoompanGifURL(pid) ?? // zoompan first
+    createGenerativeFillURL(pid, 1600, 900);
 
   return (
     <main className='container mx-auto max-w-5xl px-4 py-12 space-y-8'>
-      <h1 className='break-all text-3xl font-bold'>{pid}</h1>
+      <h1 className='text-3xl font-bold'>Transformed Banner</h1>
 
       <div className='grid gap-8 sm:grid-cols-2'>
-        {/* Original */}
+        {/* ─── Original ───────────────────────────────────────────── */}
         <figure className='space-y-3'>
           <Image
             src={original}
@@ -45,7 +49,7 @@ export default function ImageDetail({ params }: PageProps) {
           </a>
         </figure>
 
-        {/* Transformed */}
+        {/* ─── Transformed ────────────────────────────────────────── */}
         <figure className='space-y-3'>
           <Image
             src={transformed}
@@ -66,12 +70,11 @@ export default function ImageDetail({ params }: PageProps) {
         </figure>
       </div>
 
-      {/* ✅ use Link for internal navigation */}
       <Link
         href='/'
         className='text-primary underline-offset-2 hover:underline'
       >
-        ← Back&nbsp;to&nbsp;gallery
+        ← Back to gallery
       </Link>
     </main>
   );
