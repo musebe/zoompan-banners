@@ -1,7 +1,17 @@
 // src/components/SplitView.tsx
-import { useState, useRef } from 'react';
-import { motion } from 'motion/react';
-import Banner from '@/components/Banner';
+'use client';
+
+import { useMemo } from 'react';
+import {
+  ImageComparison,
+  ImageComparisonImage,
+  ImageComparisonSlider,
+} from '@/components/ui/image-comparison';
+import {
+  createOptimisedURL,
+  createGenerativeFillURL,
+  createZoompanGifURL,
+} from '@/lib/cloudinary-client-utils';
 
 type SplitViewProps = {
   publicId: string;
@@ -16,62 +26,31 @@ export default function SplitView({
   generativeFill,
   aspect = '16/9',
 }: SplitViewProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [split, setSplit] = useState(0.5);
-  const [dragging, setDragging] = useState(false);
+  const staticUrl = useMemo(() => createOptimisedURL(publicId), [publicId]);
 
-  const updateSplit = (x: number) => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    setSplit(Math.max(0, Math.min(1, (x - rect.left) / rect.width)));
-  };
+  const dynamicUrl = useMemo(() => {
+    if (zoompan) return createZoompanGifURL(publicId);
+    if (generativeFill) return createGenerativeFillURL(publicId, 1600, 900);
+    return staticUrl;
+  }, [publicId, zoompan, generativeFill, staticUrl]);
 
   return (
-    <div
-      ref={containerRef}
-      className='mx-auto my-12 max-w-3xl relative'
-      style={{ aspectRatio: aspect }}
-      onPointerMove={(e) => dragging && updateSplit(e.clientX)}
-      onPointerUp={() => setDragging(false)}
-    >
-      <Banner
-        id={publicId}
-        zoompan={false}
-        generativeFill={generativeFill}
-        aspect={aspect}
-      />
-
-      <div
-        className='absolute inset-0 overflow-hidden'
-        style={{ width: `${split * 100}%` }}
+    <div className='mx-auto my-12 max-w-3xl' style={{ aspectRatio: aspect }}>
+      <ImageComparison
+        aspectRatio={aspect}
+        className='relative w-full h-full rounded-lg border border-zinc-200 dark:border-zinc-800'
       >
-        <Banner
-          id={publicId}
-          zoompan={zoompan}
-          generativeFill={generativeFill}
-          aspect={aspect}
+        <ImageComparisonImage src={staticUrl} alt='Original' position='left' />
+        <ImageComparisonImage
+          src={dynamicUrl}
+          alt='Transformed'
+          position='right'
         />
-      </div>
-
-      <motion.div
-        className='absolute top-0 h-full flex items-center justify-center'
-        style={{
-          left: `${split * 100}%`,
-          touchAction: 'none',
-          cursor: 'ew-resize',
-        }}
-        whileHover={{ scale: 1.2 }}
-        whileTap={{ scale: 0.9 }}
-        onPointerDown={(e) => {
-          setDragging(true);
-          updateSplit(e.clientX);
-        }}
-      >
-        <div className='h-full w-px bg-border' />
-        <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>
-          <div className='h-8 w-8 rounded-full border-2 border-primary bg-background' />
-        </div>
-      </motion.div>
+        <ImageComparisonSlider className='bg-white/50'>
+          <div className='h-full w-px bg-border' />
+          <div className='absolute left-1/2 top-1/2 h-6 w-4 -translate-x-1/2 -translate-y-1/2 rounded bg-white dark:bg-zinc-800' />
+        </ImageComparisonSlider>
+      </ImageComparison>
     </div>
   );
 }

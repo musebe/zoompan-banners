@@ -19,25 +19,22 @@ export default function HomeClient() {
 
       {/* Main content: split-view & gallery */}
       <main className='flex-1 p-8 space-y-12'>
-        {config ? (
-          <>
-            <SplitView
-              publicId={config.publicId}
-              zoompan={config.zoompan}
-              generativeFill={config.generativeFill}
-              aspect='16/9'
-            />
-            <UploadGallery
-              zoompan={config.zoompan}
-              generativeFill={config.generativeFill}
-              aspect='16/9'
-            />
-          </>
-        ) : (
-          <p className='text-center text-muted-foreground'>
-            Upload an image and click “View Transformed Banner”
-          </p>
+        {/* Only show SplitView once you’ve clicked “View Transformed” */}
+        {config && (
+          <SplitView
+            publicId={config.publicId}
+            zoompan={config.zoompan}
+            generativeFill={config.generativeFill}
+            aspect='16/9'
+          />
         )}
+
+        {/* Always show the recent‐uploads gallery, using the same toggle settings */}
+        <UploadGallery
+          zoompan={config?.zoompan ?? true}
+          generativeFill={config?.generativeFill ?? true}
+          aspect='16/9'
+        />
       </main>
     </div>
   );

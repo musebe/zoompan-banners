@@ -38,11 +38,11 @@ export const slideUp: Variants = {
 export const zoomInOut: Variants = {
     rest: { scale: 1 },
     zoom: {
-        scale: [1, 1.1, 1],                        // keyframes
+        scale: [1, 1.05, 1],           // 1.05 instead of 1.1
         transition: {
             duration: 8,
             times: [0, 0.5, 1],
-            ease: "easeInOut",
+            ease: 'easeInOut',
             repeat: Infinity,
         },
     },

@@ -42,12 +42,14 @@ export function createZoompanGifURL(
     opts: { duration?: number; loop?: boolean; fps?: number } = {}
 ): string {
     const { duration = 6, loop = true, fps } = opts;
+
     const parts = [`e_zoompan,d_${duration}`];
     if (fps) parts.push(`fps_${fps}`);
     if (loop) parts.push('e_loop');
-    parts.push('q_auto', 'f_auto');
-    const id = encodeURIComponent(toId(file));
-    return `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/${parts.join(
-        '/'
-    )}/${id}.gif`;
+
+    // keep the animation – don’t let f_auto convert it to a static WebP/JPEG
+    parts.push('fl_animated', 'q_auto');
+
+    return `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+        }/image/upload/${parts.join('/')}/${encodeURIComponent(toId(file))}.gif`;
 }
