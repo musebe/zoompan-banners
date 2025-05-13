@@ -1,4 +1,4 @@
-//motionPresets.ts
+// lib/motionPresets.ts
 
 /**
  * Motion presets

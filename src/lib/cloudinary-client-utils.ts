@@ -1,3 +1,5 @@
+// lib/cloudinary-client-utils.ts
+
 import { cldClient } from './cloudinary-client';
 import { pad } from '@cloudinary/url-gen/actions/resize';
 import { generativeFill } from '@cloudinary/url-gen/qualifiers/background';
