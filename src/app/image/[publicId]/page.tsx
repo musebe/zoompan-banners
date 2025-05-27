@@ -24,11 +24,6 @@ export default async function ImageDetail({
   const pid = decodeURIComponent(publicId);
   if (!pid) notFound();
 
-  const displayName = pid
-    .split('/')
-    .pop()! // remove folder
-    .replace(/\.[^.]+$/, '') // strip extension
-    .replace(/[-_]+/g, ' '); // nice spacing
 
   const original = createOptimisedURL(pid);
   const transformed =
