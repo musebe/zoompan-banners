@@ -36,7 +36,6 @@ export default async function ImageDetail({
 
   return (
     <main className='container mx-auto max-w-5xl px-4 py-12 space-y-8'>
-      <h1 className='text-3xl font-bold break-words'>{displayName}</h1>
 
       <div className='grid gap-8 sm:grid-cols-2'>
         {/* original */}
